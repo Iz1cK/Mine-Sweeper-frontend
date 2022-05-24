@@ -7,10 +7,11 @@ function GameBoard(props) {
   const [boardSize, setBoardSize] = useState({ width: 9, height: 9 });
   const [minesAmount, setMinesAmount] = useState(10);
   const [data, setData] = useState({ width: 9, height: 9, minesAmount: 10 });
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     console.log("useEffect");
-    setBoard(generateBoard(10));
+    setBoard(generateBoard(9, 9, 10));
     return () => console.log("unmount");
   }, []);
 
@@ -18,20 +19,20 @@ function GameBoard(props) {
   //     console.log(board);
   //   }, [board]);
 
-  const generateBoard = () => {
+  const generateBoard = (width, height, mines) => {
     let tempBoard = [];
     let tempRow = [];
-    for (let i = 0; i < boardSize.height; i++) {
+    for (let i = 0; i < width; i++) {
       tempRow = [];
-      for (let j = 0; j < boardSize.width; j++) {
+      for (let j = 0; j < height; j++) {
         tempRow.push(0);
       }
       tempBoard.push(tempRow);
     }
-    for (let i = 0; i < minesAmount; i++) {
+    console.log(tempBoard);
+    for (let i = 0; i < mines; i++) {
       let [x, y] = getRandomPosition();
       while (tempBoard[x][y]) {
-        console.log(1);
         [x, y] = getRandomPosition();
       }
       tempBoard[x][y] = 1;
@@ -45,8 +46,16 @@ function GameBoard(props) {
     return [x, y];
   };
 
-  const revealCell = (type) => (e) => {
-    console.log(type);
+  const revealCell = (type, row, column) => (e) => {
+    console.log("type: " + type);
+    console.log("row: " + row);
+    console.log("column: " + column);
+    console.log("board[row][column]:" + board[row][column]);
+    if (board[row][column]) {
+      alert("Game Over");
+    }
+
+    //a[row][column]
   };
 
   const flagCell = (e) => {
@@ -60,7 +69,7 @@ function GameBoard(props) {
     display: grid;
     grid-template-columns: repeat(${boardSize.width}, 1fr);
     grid-template-rows: repeat(${boardSize.height}, 1fr);
-    width: 50vw;
+    width: 400px;
     cursor: pointer;
     user-select: none;
   `;
@@ -107,9 +116,12 @@ function GameBoard(props) {
           ></input>
           <button
             onClick={(e) => {
+              setGameOver(false);
               setBoardSize({ height: data.height, width: data.width });
               setMinesAmount(data.minesAmount);
-              setTimeout(() => setBoard(generateBoard()), 100);
+              setBoard(
+                generateBoard(data.height, data.width, data.minesAmount)
+              );
             }}
           >
             Change
@@ -121,22 +133,20 @@ function GameBoard(props) {
           return row.map((block, blockIndex) => {
             return block == 1 ? (
               <div
-                className={`${styles.bomb} ${styles.cell}`}
-                onClick={revealCell(1)}
+                className={`${styles.cell} ${
+                  gameOver ? styles.bomb : styles.noBomb
+                }`}
+                onClick={revealCell(1, rowIndex, blockIndex)}
                 onContextMenu={flagCell}
                 key={rowIndex * 2 + blockIndex}
-              >
-                B
-              </div>
+              ></div>
             ) : (
               <div
                 className={`${styles.noBomb} ${styles.cell}`}
-                onClick={revealCell(0)}
+                onClick={revealCell(0, rowIndex, blockIndex)}
                 onContextMenu={flagCell}
                 key={rowIndex * 2 + blockIndex}
-              >
-                N
-              </div>
+              ></div>
             );
           });
         })}
