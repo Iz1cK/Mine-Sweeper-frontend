@@ -1,23 +1,30 @@
-import React, { useState, useEffect, useId } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
 import styled from "styled-components";
+import { countBombsNearCell } from "../../Utils/bombCounter.js";
 
 function GameBoard(props) {
   const [board, setBoard] = useState([]);
   const [boardSize, setBoardSize] = useState({ width: 9, height: 9 });
   const [minesAmount, setMinesAmount] = useState(10);
-  const [data, setData] = useState({ width: 9, height: 9, minesAmount: 10 });
+  const [data, setData] = useState({
+    width: 9,
+    height: 9,
+    minesAmount: 10,
+    board: [],
+  });
   const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
-    console.log("useEffect");
-    setBoard(generateBoard(9, 9, 10));
+    let startingBoard = generateBoard(9, 9, 10);
+    console.table(startingBoard.map((cell) => cell.map((one) => one.type)));
+    setBoard(startingBoard);
     return () => console.log("unmount");
   }, []);
 
-  //   useEffect(() => {
-  //     console.log(board);
-  //   }, [board]);
+  useEffect(() => {
+    console.table(board.map((cell) => cell.map((one) => one.type)));
+  }, [board]);
 
   const generateBoard = (width, height, mines) => {
     let tempBoard = [];
@@ -25,17 +32,27 @@ function GameBoard(props) {
     for (let i = 0; i < width; i++) {
       tempRow = [];
       for (let j = 0; j < height; j++) {
-        tempRow.push(0);
+        tempRow.push({
+          type: 0,
+          flagged: false,
+          shown: false,
+          img: "https://minesweeper.online/img/skins/hd/closed.svg?v=2",
+        });
       }
       tempBoard.push(tempRow);
     }
-    console.log(tempBoard);
+
     for (let i = 0; i < mines; i++) {
       let [x, y] = getRandomPosition();
-      while (tempBoard[x][y]) {
+      while (tempBoard[x][y].type) {
         [x, y] = getRandomPosition();
       }
-      tempBoard[x][y] = 1;
+      tempBoard[x][y] = {
+        type: 1,
+        flagged: false,
+        shown: false,
+        img: "https://minesweeper.online/img/skins/hd/closed.svg?v=2",
+      };
     }
     return tempBoard;
   };
@@ -47,20 +64,33 @@ function GameBoard(props) {
   };
 
   const revealCell = (type, row, column) => (e) => {
-    console.log("type: " + type);
-    console.log("row: " + row);
-    console.log("column: " + column);
-    console.log("board[row][column]:" + board[row][column]);
-    if (board[row][column]) {
+    let tempBoard = board.slice(); // returns a copy of the board array
+    if (tempBoard[row][column].flagged) return;
+    if (type) {
       alert("Game Over");
+      return;
     }
-
-    //a[row][column]
+    let bombCount = countBombsNearCell(tempBoard, row, column);
+    console.log(bombCount);
+    tempBoard[row][column] = {
+      ...tempBoard[row][column],
+      shown: true,
+      img: `https://minesweeper.online/img/skins/hd/type${bombCount}.svg`,
+    };
+    setBoard(tempBoard);
   };
 
-  const flagCell = (e) => {
+  const flagCell = (type, row, column) => (e) => {
     e.preventDefault();
-    console.log("Left click");
+    let tempBoard = board.slice(); // returns a copy of the board array
+    tempBoard[row][column] = {
+      ...tempBoard[row][column],
+      flagged: !tempBoard[row][column].flagged,
+      img: !tempBoard[row][column].flagged
+        ? "https://minesweeper.online/img/skins/hd/flag.svg?v=2"
+        : "https://minesweeper.online/img/skins/hd/closed.svg?v=2",
+    };
+    setBoard(tempBoard);
   };
 
   const Block = styled.div`
@@ -69,20 +99,11 @@ function GameBoard(props) {
     display: grid;
     grid-template-columns: repeat(${boardSize.width}, 1fr);
     grid-template-rows: repeat(${boardSize.height}, 1fr);
-    width: 400px;
+    width: 200px;
+    height: 200px;
     cursor: pointer;
     user-select: none;
   `;
-
-  const Bomb = styled.div`
-    background-color: red;
-    border: 2px solid black;
-  `;
-  const Blank = styled.div`
-    background-color: grey;
-    border: 2px solid black;
-  `;
-
   return (
     <>
       <div>
@@ -131,20 +152,28 @@ function GameBoard(props) {
       <Block>
         {board.map((row, rowIndex) => {
           return row.map((block, blockIndex) => {
-            return block == 1 ? (
+            return block.type === 1 ? (
               <div
-                className={`${styles.cell} ${
-                  gameOver ? styles.bomb : styles.noBomb
+                className={`${gameOver ? styles.bomb : styles.noBomb} ${
+                  !block.shown && block.flagged && styles.flag
                 }`}
                 onClick={revealCell(1, rowIndex, blockIndex)}
-                onContextMenu={flagCell}
+                onContextMenu={flagCell(1, rowIndex, blockIndex)}
+                style={{
+                  background: `url(${block.img}) center center / cover no-repeat`,
+                }}
                 key={rowIndex * 2 + blockIndex}
               ></div>
             ) : (
               <div
-                className={`${styles.noBomb} ${styles.cell}`}
+                className={`${styles.noBomb} ${
+                  !block.shown && block.flagged && styles.flag
+                }`}
                 onClick={revealCell(0, rowIndex, blockIndex)}
-                onContextMenu={flagCell}
+                onContextMenu={flagCell(0, rowIndex, blockIndex)}
+                style={{
+                  background: `url(${block.img}) center center / cover no-repeat`,
+                }}
                 key={rowIndex * 2 + blockIndex}
               ></div>
             );

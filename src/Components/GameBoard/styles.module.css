@@ -1,13 +1,9 @@
-.bomb {
-  background-color: red;
-  border: 2px solid black;
+.noBomb {
   min-width: 25px;
   min-height: 25px;
 }
 
-.noBomb {
-  background-color: gray;
-  border: 2px solid black;
+.flag {
   min-width: 25px;
   min-height: 25px;
 }
