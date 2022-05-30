@@ -1,9 +1,50 @@
 .noBomb {
   min-width: 25px;
   min-height: 25px;
+  background: url("https://minesweeper.online/img/skins/hd/closed.svg?v=2")
+    center center / cover no-repeat;
 }
 
 .flag {
   min-width: 25px;
   min-height: 25px;
+  background: url("https://minesweeper.online/img/skins/hd/flag.svg?v=2") center
+    center / cover no-repeat;
+}
+
+.\30 {
+  background: url("https://minesweeper.online/img/skins/hd/type0.svg?v=2")
+    center center / cover no-repeat;
+}
+.\31 {
+  background: url("https://minesweeper.online/img/skins/hd/type1.svg?v=2")
+    center center / cover no-repeat;
+}
+.\32 {
+  background: url("https://minesweeper.online/img/skins/hd/type2.svg?v=2")
+    center center / cover no-repeat;
+}
+.\33 {
+  background: url("https://minesweeper.online/img/skins/hd/type3.svg?v=2")
+    center center / cover no-repeat;
+}
+.\34 {
+  background: url("https://minesweeper.online/img/skins/hd/type4.svg?v=2")
+    center center / cover no-repeat;
+}
+.\35 {
+  background: url("https://minesweeper.online/img/skins/hd/type5.svg?v=2")
+    center center / cover no-repeat;
+}
+.\36 {
+  background: url("https://minesweeper.online/img/skins/hd/type6.svg?v=2")
+    center center / cover no-repeat;
+}
+.\37 {
+  background: url("https://minesweeper.online/img/skins/hd/type7.svg?v=2")
+    center center / cover no-repeat;
+}
+.\38 {
+  background: url("https://minesweeper.online/img/skins/hd/type8.svg?v=2")
+    center center / cover no-repeat;
 }

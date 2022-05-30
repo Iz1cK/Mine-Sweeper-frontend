@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import styles from "./styles.module.css";
 import styled from "styled-components";
 import { countBombsNearCell } from "../../Utils/bombCounter.js";
+import { findAdjacentCells } from "../../Utils/findAllAdjacentCells.js";
+import Cell from "../Cell";
 
 function GameBoard(props) {
   const [board, setBoard] = useState([]);
@@ -63,36 +65,6 @@ function GameBoard(props) {
     return [x, y];
   };
 
-  const revealCell = (type, row, column) => (e) => {
-    let tempBoard = board.slice(); // returns a copy of the board array
-    if (tempBoard[row][column].flagged) return;
-    if (type) {
-      alert("Game Over");
-      return;
-    }
-    let bombCount = countBombsNearCell(tempBoard, row, column);
-    console.log(bombCount);
-    tempBoard[row][column] = {
-      ...tempBoard[row][column],
-      shown: true,
-      img: `https://minesweeper.online/img/skins/hd/type${bombCount}.svg`,
-    };
-    setBoard(tempBoard);
-  };
-
-  const flagCell = (type, row, column) => (e) => {
-    e.preventDefault();
-    let tempBoard = board.slice(); // returns a copy of the board array
-    tempBoard[row][column] = {
-      ...tempBoard[row][column],
-      flagged: !tempBoard[row][column].flagged,
-      img: !tempBoard[row][column].flagged
-        ? "https://minesweeper.online/img/skins/hd/flag.svg?v=2"
-        : "https://minesweeper.online/img/skins/hd/closed.svg?v=2",
-    };
-    setBoard(tempBoard);
-  };
-
   const Block = styled.div`
     margin: auto;
     padding: 0;
@@ -147,35 +119,49 @@ function GameBoard(props) {
           >
             Change
           </button>
+          <button
+            onClick={(e) => {
+              let arr = [
+                [1, 1, 1, 1, 1],
+                [0, 0, 1, 1, 1],
+                [0, 0, 0, 1, 1],
+                [0, 0, 1, 0, 0],
+                [1, 1, 1, 0, 0],
+              ];
+              console.table(arr);
+              let temp = [];
+              let array = findAdjacentCells(arr, 3, 3, temp);
+              //intialize and fill 2d array with zeroes
+              let tempBoard = [];
+              for (let i = 0; i < arr.length; i++) {
+                let tempRow = [];
+                for (let j = 0; j < arr[i].length; j++) {
+                  tempRow.push(0);
+                }
+                tempBoard.push(tempRow);
+              }
+              console.log(array);
+              for (let i = 0; i < array.length; i++) {
+                tempBoard[array[i].row][array[i].column] = "*";
+              }
+              console.table(tempBoard);
+            }}
+          >
+            says
+          </button>
         </div>
       </div>
       <Block>
         {board.map((row, rowIndex) => {
           return row.map((block, blockIndex) => {
-            return block.type === 1 ? (
-              <div
-                className={`${gameOver ? styles.bomb : styles.noBomb} ${
-                  !block.shown && block.flagged && styles.flag
-                }`}
-                onClick={revealCell(1, rowIndex, blockIndex)}
-                onContextMenu={flagCell(1, rowIndex, blockIndex)}
-                style={{
-                  background: `url(${block.img}) center center / cover no-repeat`,
-                }}
-                key={rowIndex * 2 + blockIndex}
-              ></div>
-            ) : (
-              <div
-                className={`${styles.noBomb} ${
-                  !block.shown && block.flagged && styles.flag
-                }`}
-                onClick={revealCell(0, rowIndex, blockIndex)}
-                onContextMenu={flagCell(0, rowIndex, blockIndex)}
-                style={{
-                  background: `url(${block.img}) center center / cover no-repeat`,
-                }}
-                key={rowIndex * 2 + blockIndex}
-              ></div>
+            return (
+              <Cell
+                block={block}
+                gameOver={gameOver}
+                indeces={{ rowIndex, blockIndex }}
+                board={board}
+                setBoard={setBoard}
+              ></Cell>
             );
           });
         })}
