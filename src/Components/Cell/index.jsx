@@ -10,51 +10,59 @@ function Cell({
   board,
   setBoard,
 }) {
-  const [bombCount, setBombCount] = useState(0);
+  // const [bombCount, setBombCount] = useState(0);
   const [flagged, setFlagged] = useState(false);
 
   const revealCell = (e) => {
-    let tempBoard = board.slice(); // returns a copy of the board array
+    console.log("hi");
     if (flagged) return;
-    if (block.type) {
+    if (block.type == 1) {
       alert("Game Over");
       return;
     }
+    let tempBoard = board.slice(); // returns a copy of the board array
     let bombCount = countBombsNearCell(tempBoard, rowIndex, blockIndex);
+    console.log(bombCount);
     if (bombCount == 0) {
+      console.log("hi2");
       let array = [];
       array = findAdjacentCells(tempBoard, rowIndex, blockIndex, array);
-
+      console.log(array);
       for (let i = 0; i < array.length; i++) {
         let { row: r, column: c } = array[i];
-        if (countBombsNearCell(tempBoard, r, c) == 0) {
-          tempBoard[r][c] = {
-            ...tempBoard[r][c],
-            shown: true,
-          };
-        }
+        let bomb = countBombsNearCell(tempBoard, r, c);
+        tempBoard[r][c] = {
+          ...tempBoard[r][c],
+          shown: true,
+          count: bomb,
+        };
       }
     } else {
       tempBoard[rowIndex][blockIndex] = {
         ...tempBoard[rowIndex][blockIndex],
         shown: true,
+        count: bombCount,
       };
     }
     setBoard(tempBoard);
   };
 
-  useEffect(() => {
-    if (block.type !== 1) {
-      setBombCount(countBombsNearCell(board, rowIndex, blockIndex));
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (block.type !== 1) {
+  //     setBombCount(countBombsNearCell(board, rowIndex, blockIndex));
+  //   }
+  // }, []);
   return (
     <div
       className={`${gameOver ? styles.bomb : styles.noBomb} ${
-        !block.shown && flagged && styles.flag
+        !board[rowIndex][blockIndex].shown && flagged && styles.flag
       }
       ${
-        block.shown ? styles[bombCount] : flagged ? styles.flag : styles.noBomb
+        block.shown
+          ? styles[board[rowIndex][blockIndex].count]
+          : flagged
+          ? styles.flag
+          : styles.noBomb
       }`}
       onClick={revealCell}
       onContextMenu={(e) => {

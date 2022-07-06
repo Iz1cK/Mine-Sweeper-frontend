@@ -21,12 +21,7 @@ function GameBoard(props) {
     let startingBoard = generateBoard(9, 9, 10);
     console.table(startingBoard.map((cell) => cell.map((one) => one.type)));
     setBoard(startingBoard);
-    return () => console.log("unmount");
   }, []);
-
-  useEffect(() => {
-    console.table(board.map((cell) => cell.map((one) => one.type)));
-  }, [board]);
 
   const generateBoard = (width, height, mines) => {
     let tempBoard = [];
@@ -119,7 +114,7 @@ function GameBoard(props) {
           >
             Change
           </button>
-          <button
+          {/* <button
             onClick={(e) => {
               let arr = [
                 [1, 1, 1, 1, 1],
@@ -128,7 +123,6 @@ function GameBoard(props) {
                 [0, 0, 1, 0, 0],
                 [1, 1, 1, 0, 0],
               ];
-              console.table(arr);
               let temp = [];
               let array = findAdjacentCells(arr, 3, 3, temp);
               //intialize and fill 2d array with zeroes
@@ -140,15 +134,13 @@ function GameBoard(props) {
                 }
                 tempBoard.push(tempRow);
               }
-              console.log(array);
               for (let i = 0; i < array.length; i++) {
                 tempBoard[array[i].row][array[i].column] = "*";
               }
-              console.table(tempBoard);
             }}
           >
             says
-          </button>
+          </button> */}
         </div>
       </div>
       <Block>
